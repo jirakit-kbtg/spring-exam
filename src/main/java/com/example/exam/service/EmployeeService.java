@@ -41,6 +41,9 @@ public class EmployeeService {
     @Transactional
     public void removeEmployee(Integer id){
         Employee employee = employeeDAO.findById(id);
+        if (employee==null) {
+            throw new RuntimeException("Not found employee ID: " + id.toString());
+        }
         employee.setStatus("deleted");
         employeeDAO.save(employee);
     }
@@ -48,6 +51,9 @@ public class EmployeeService {
     @Transactional
     public Employee editEmployee(Integer id, Employee body){
         Employee employee = employeeDAO.findById(id);
+        if (employee==null) {
+            throw new RuntimeException("Not found employee ID: " + id.toString());
+        }
         if (body.getFirstName()!=null) employee.setFirstName(body.getFirstName());
         if (body.getLastName()!=null) employee.setLastName(body.getLastName());
         if (body.getNickName()!=null) employee.setNickName(body.getNickName());
@@ -59,6 +65,9 @@ public class EmployeeService {
     @Transactional
     public Employee addSalary(Integer id, Integer percent){
         Employee employee = employeeDAO.findById(id);
+        if (employee==null) {
+            throw new RuntimeException("Not found employee ID: " + id.toString());
+        }
         employee.setSalary(employee.getSalary() * (100+percent)/100);
         employeeDAO.save(employee);
         return employee;
@@ -67,6 +76,9 @@ public class EmployeeService {
     @Transactional
     public  Employee editPosition(Integer id, PositionEditBody body){
         Employee employee = employeeDAO.findById(id);
+        if (employee==null) {
+            throw new RuntimeException("Not found employee ID: " + id.toString());
+        }
         if (!employee.getPosition().equals(body.getCurrentPosition())){
             throw new IncorrectPositionException();
         }
@@ -89,7 +101,8 @@ public class EmployeeService {
                 noContentList.add(id);
                 continue;
             }
-            employeeDAO.delete(employee);
+            employee.setStatus("deleted");
+            employeeDAO.update(employee);
         }
         if (noContentList.size() > 0){ // noContentList
             throw new IncompleteOperationException("Incomplete", noContentList);
